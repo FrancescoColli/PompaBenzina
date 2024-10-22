@@ -17,7 +17,20 @@ public class ListaSchede {
 		}
 	}
 
-	public boolean getAccesso(String pin) {
+	
+	
+	public boolean getAccesso(String pin) throws SQLException {
+		String query = "select * from listapinbenzina";
+		Statement fra = database.createStatement();
+		ResultSet rs = fra.executeQuery(query);
+		while (rs.next()) {
+			String pinrinominato = rs.getString("pin");
+			double creditorinominato = rs.getDouble("credito");
+// System.out.println(); sysout + ctrl + spazio
+			System.out.println("Pin: " + pinrinominato + ", Credito: " + creditorinominato);
+			listaS.add(new Schede(pinrinominato, creditorinominato));
+			
+		}
 		boolean ok = false;
 		for (Schede s : listaS) {
 			if (s.getPin().equalsIgnoreCase(pin)) {
@@ -27,25 +40,42 @@ public class ListaSchede {
 		return ok;
 	}
 
-	public double mettiBenzina(String pin, double importo) {
+	public double mettiBenzina(String pin, double importo) throws SQLException {
+		
 		double credito = -1;
 		for (Schede c1 : listaS) {
 			if (c1.getPin().equals(pin)) {
 				if (c1.getCredito() >= importo) {
 					c1.setCredito(c1.getCredito() - importo);
 					credito = c1.getCredito();
+					String query = "update listapinbenzina set credito = "+ credito +" where pin = " + pin;
+					PreparedStatement fra = database.prepareStatement(query);
+					int row = fra.executeUpdate();
+					if (row > 0) {
+						System.out.println("Update success");
+					} else {
+						System.out.println("Update failed");
+					}
 				}
 			}
 		}
 		return credito;
 	}
 
-	public double versa(String pin, double importo) {
+	public double versa(String pin, double importo) throws SQLException {
 		double credito = -1;
 		for (Schede c1 : listaS) {
 			if (c1.getPin().equals(pin)) {
 				c1.setCredito(c1.getCredito() + importo);
 				credito = c1.getCredito();
+				String query = "update listapinbenzina set credito = "+ credito +" where pin = " + pin;
+				PreparedStatement fra = database.prepareStatement(query);
+				int row = fra.executeUpdate();
+				if (row > 0) {
+					System.out.println("Update success");
+				}else {
+					System.out.println("Update failed");
+				}
 
 			}
 		}
